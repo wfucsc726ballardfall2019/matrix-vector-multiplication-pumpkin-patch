@@ -67,8 +67,10 @@ int main(int argc, char** argv) {
     double time, start = MPI_Wtime();
 
     // Communicate input vector entries
+    MPI_Allgather(&xlocal, xdim, MPI_DOUBLE, xlocal, n, MPI_DOUBLE, MPI_COMM_WORLD);
 
     // Perform local matvec
+    local_gemv(Alocal, xlocal, ylocal, m, n);
 
     // Communicate output vector entries
     
@@ -116,11 +118,16 @@ void init_rand(double* a, int m, int n, double* x, int xn) {
     // init matrix
     for(int i = 0; i < m; i++) {
         for(int j = 0; j < n; j++) {
-            a[i+j*m] = drand48();
+            if(i == j){
+                a[i+j*m] = 1;
+            }
+            else{
+                a[i+j*m] = 0;
+            }
         }
     }
     // init input vector x
     for(int j = 0; j < xn; j++) {
-        x[j] = drand48();
+        x[j] = j+1;
     }
 }
